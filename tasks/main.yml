@@ -1,0 +1,30 @@
+- name: "[consistency] | Determine if we've managed this host before"
+  stat:
+    path: "/etc/yum/ansible-managed"
+  register: "yum_managed"
+
+- name: "[consistency] | Clean yum cache"
+  command: "yum clean all"
+  when: "not yum_managed.stat.exists"
+  notify: "Mark host packages as managed"
+
+- name: "[repos] | Enable additional repos"
+  yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.description | default(omit) }}"
+    baseurl: "{{ item.baseurl | default(omit) }}"
+    metalink: "{{ item.metalink | default(omit) }}"
+    gpgkey: "{{ item.gpgkey | default(omit) }}"
+    includepkgs: "{{ item.whitelist | default(None) | join(' ') or omit }}"
+    state: "{{ item.enable | default(enable_additional_repos) | ternary('present', 'absent') }}"
+  loop: "{{ final_additional_repos }}"
+
+- name: "[packages] | Include package resolution tasks"
+  include_tasks: resolve-additional-repos.yml
+  loop: "{{ final_additional_repos }}"
+
+- name: "[packages] | Install system packages"
+  yum:
+    state: "{{ package_state }}"
+    name: "{{ item }}"
+  loop: "{{ final_packages }}"

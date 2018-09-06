@@ -1,0 +1,16 @@
+galaxy_info:
+  author: Jack Henahan
+  description: Baseline package sets for Enterprise Linux hosts
+  issue_tracker_url: https://github.com/jhenahan/system-packages-org/issues
+  license: BSD
+  min_ansible_version: 2.5
+  platforms:
+  - name: EL
+    versions:
+    - 7
+  galaxy_tags:
+    - baseline
+    - redhat
+    - centos
+
+dependencies: []

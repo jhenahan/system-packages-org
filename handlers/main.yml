@@ -1,0 +1,4 @@
+- name: "Mark host packages as managed"
+  file:
+    path: "/etc/yum/ansible-managed"
+    state: touch

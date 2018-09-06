@@ -1,0 +1,11 @@
+- name: "[additional-repo] | Get repo activation state for {{ item.name }}"
+  set_fact:
+    additional_repo_enabled: "{{ item.enabled | default(enable_additional_repos) }}"
+
+- name: "[additional-repo] | Resolve additional repo packages for {{ item.name }}"
+  yum:
+    state: "{{ additional_repo_enabled | ternary(package_state, 'absent') }}"
+    name: "{{ package }}"
+  loop: "{{ item.whitelist }}"
+  loop_control:
+    loop_var: package

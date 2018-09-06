@@ -1,0 +1,4 @@
+*.log
+_minted*
+auto/
+*.tex

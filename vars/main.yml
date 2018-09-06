@@ -1,0 +1,58 @@
+default_packages:
+  # shells
+  - bash
+  - bash-completion
+  # editors
+  - vim
+  - vim-enhanced
+  # package management
+  - yum-utils.noarch
+  # SELinux deps
+  - policycoreutils-python
+  # diagnostics
+  - dstat
+  - iptraf
+  - lsof
+  - lsscsi
+  - psmisc
+  - strace
+  - sysstat
+  # networking
+  - bind-utils
+  - net-snmp-utils
+  - net-tools
+  - samba-common
+  - samba-winbind-modules
+  - wget
+  # authentication
+  - krb5-workstation.x86_64
+  - pam_krb5
+  # build tools
+  - autoconf
+  # scripting
+  - expect
+  - perl
+  - perl-core
+  - python
+  # tools
+  - bzip2
+  - git
+  - rsync
+  - screen
+
+epel_whitelist:
+  - htop
+  - iftop
+  - multitail
+  - fish
+
+default_additional_repos:
+  - name: epel
+    description: "EPEL YUM repo"
+    baseurl: "https://download.fedoraproject.org/pub/epel/7/$basearch"
+    metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
+    gpgkey: "http://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7"
+    whitelist: "{{ epel_whitelist }}"
+
+final_additional_repos: "{{ default_additional_repos | union(additional_repos) }}"
+final_packages: "{{ default_packages | union(packages) }}"
