@@ -14,7 +14,7 @@ In order to install this role, you should create (or edit) a file called
 
 #+begin_src yaml
   - src: https://github.com/jhenahan/system-packages-org
-    version: v1.0.0 # corresponds to a git tag
+    version: v1.0.1 # corresponds to a git tag
 #+end_src
 
 You can now run =ansible-galaxy install -r requirements.yml= to install the
@@ -64,8 +64,28 @@ repository whitelist, include the key =whitelist= in your repository dictionary,
 with a YAML list of packages.
 
 #+begin_src yaml
-  additional_repos: []
+  additional_repos: "{{ default_additional_repos }}"
+
+  epel_whitelist:
+    - htop
+    - iftop
+    - multitail
+    - fish
 #+end_src
+
+By default, we specify the EPEL repo along with a whitelist of packages. If
+you'd rather not use EPEL, you can override =additional_repos=. If you'd like to
+specify additions along with the defaults, you can write
+
+#+begin_src yaml :tangle no
+  my_cool_repos:
+    - ...
+
+  additional_repos: "{{ default_additional_repos | union(my_cool_repos) }}"
+#+end_src
+
+To change the EPEL whitelist in the event that you do use the default additional
+repos, just override =epel_whitelist=.
 
 You may list any packages your application (etc.) may require using the
 following variable.
@@ -145,6 +165,15 @@ libraries, and additional development and system administration tools.
     - screen
 #+end_src
 
+To disable the default package set, set =default_packages: []= like this:
+
+#+begin_src yaml :tangle no
+    - hosts: servers
+      roles:
+        - role: system-packages-org
+          default_packages: []
+#+end_src
+
 The EPEL package set is designed not to conflict with base distribution package
 sets, but has historically caused some issues when used in combination with
 other "additional packages" repos like RHEL Extras. For this reason, you must
@@ -154,40 +183,20 @@ By default, we enable EPEL with a reasonable whitelist, with some additional
 helpful tools and an alternative shell (=fish=).
 
 #+begin_src yaml
-  epel_whitelist:
-    - htop
-    - iftop
-    - multitail
-    - fish
-
   default_additional_repos:
     - name: epel
       description: "EPEL YUM repo"
       baseurl: "https://download.fedoraproject.org/pub/epel/7/$basearch"
       metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
       gpgkey: "http://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7"
-      whitelist: "{{ epel_whitelist }}"
+      whitelist: "{{ epel_whitelist | default([]) }}"
 #+end_src
 
-If you do not want EPEL in your additional repos, you can pass a redefinition of
-=default_additional_repos= as a role param like so:
-
-#+begin_src yaml :tangle no
-  - hosts: servers
-    roles:
-      - { role: system-packages-org, default_additional_repos: [] }
-#+end_src
-
-Similarly, if you do want to use EPEL, but you'd rather whitelist a different
-set of packages, you can pass =epel_whitelist= as a role param in the same way
-as above.
-
-Finally, two helper variables are declared to merge the default and user-defined
-package sets and whitelists. Duplicate packages are automatically removed.
+Finally, a helper variable is declared to merge the default and user-defined
+package sets.
 
 #+begin_src yaml
-  final_additional_repos: "{{ default_additional_repos | union(additional_repos) }}"
-  final_packages: "{{ default_packages | union(packages) }}"
+  final_packages: "{{ default_packages | union(packages) | union(host_packages) }}"
 #+end_src
 ** Idempotence
 In order to avoid cleaning the =yum= cache unnecessarily on future runs, we

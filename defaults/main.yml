@@ -1,6 +1,12 @@
 enable_additional_repos: yes
 
-additional_repos: []
+additional_repos: "{{ default_additional_repos }}"
+
+epel_whitelist:
+  - htop
+  - iftop
+  - multitail
+  - fish
 
 packages: []
 
