@@ -17,11 +17,11 @@
     gpgkey: "{{ item.gpgkey | default(omit) }}"
     includepkgs: "{{ item.whitelist | default(None) | join(' ') or omit }}"
     state: "{{ item.enable | default(enable_additional_repos) | ternary('present', 'absent') }}"
-  loop: "{{ final_additional_repos }}"
+  loop: "{{ additional_repos }}"
 
 - name: "[packages] | Include package resolution tasks"
   include_tasks: resolve-additional-repos.yml
-  loop: "{{ final_additional_repos }}"
+  loop: "{{ additional_repos }}"
 
 - name: "[packages] | Install system packages"
   yum:

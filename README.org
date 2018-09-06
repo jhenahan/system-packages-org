@@ -240,7 +240,7 @@ Now we resolve any repository changes specified in the config. Disabled (i.e.,
       gpgkey: "{{ item.gpgkey | default(omit) }}"
       includepkgs: "{{ item.whitelist | default(None) | join(' ') or omit }}"
       state: "{{ item.enable | default(enable_additional_repos) | ternary('present', 'absent') }}"
-    loop: "{{ final_additional_repos }}"
+    loop: "{{ additional_repos }}"
 #+end_src
 
 *** Packages
@@ -258,7 +258,7 @@ work off on =include_tasks=.
 #+begin_src yaml
   - name: "[packages] | Include package resolution tasks"
     include_tasks: resolve-additional-repos.yml
-    loop: "{{ final_additional_repos }}"
+    loop: "{{ additional_repos }}"
 #+end_src
 
 While processing each repo, we capture its activation state so we can correctly
